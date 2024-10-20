@@ -1,5 +1,6 @@
 package com.hanankhan.cookbookconceptapp
 
+import android.icu.text.CaseMap.Title
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +25,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -184,7 +188,77 @@ fun Content(recipe: Recipe) {
             Description(recipe)
             ServingCalculator()
             IngredientsHeader()
+            IngredientsList(recipe)
         }
+    }
+}
+
+@Composable
+fun IngredientsList(recipe: Recipe) {
+    EasyGrid(nColumns = 3, items = recipe.ingredients) {
+
+        IngredientCard(it.image, it.title, it.subtitle, Modifier)
+    }
+}
+
+@Composable
+fun <T>EasyGrid(nColumns: Int, items: List<T>, content: @Composable (T) -> Unit) {
+     Column(Modifier.padding(16.dp)) {
+        for (i in items.indices step nColumns) {
+            Row {
+                for (j in 0 until nColumns) {
+                    if (i + j < items.size) {
+
+                        Box(contentAlignment = Alignment.TopStart, modifier = Modifier.weight(1f)) {
+                            content(items[i + j])
+                        }
+                    } else {
+                        Spacer(Modifier.weight(1f, fill = true))
+                    }
+                }
+            }
+        }
+     }
+}
+
+@Composable
+fun IngredientCard(
+    @DrawableRes iconResource: Int,
+    title: String,
+    subtitle: String,
+    modifier: Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(bottom = 16.dp)
+    ) {
+        Card(
+            shape = Shapes().large,
+            colors = CardDefaults.cardColors(containerColor = LightGray),
+            modifier = Modifier
+                .width(100.dp)
+                .height(100.dp)
+                .padding(bottom = 8.dp)
+        ) {
+            Image(
+                painter = painterResource(iconResource),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .width(60.dp)
+                    .height(60.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+        Text(
+            text = title,
+            modifier = Modifier.width(100.dp),
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            ),
+        )
+        Text(text = subtitle, color = DarkGray, modifier = Modifier.width(100.dp), fontSize = 14.sp)
     }
 }
 
