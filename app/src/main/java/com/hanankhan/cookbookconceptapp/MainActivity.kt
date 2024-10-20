@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
@@ -32,8 +34,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,15 +77,17 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Body(recipe: Recipe, paddingValues: PaddingValues = PaddingValues()) {
+    val scrollState = rememberLazyListState()
+
     Box {
-        Content(recipe)
-        ParallaxToolbar(recipe, paddingValues)
+        Content(recipe, scrollState)
+        ParallaxToolbar(recipe, paddingValues, scrollState)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParallaxToolbar(recipe: Recipe, paddingValues: PaddingValues) {
+fun ParallaxToolbar(recipe: Recipe, paddingValues: PaddingValues, scrollState: LazyListState) {
     Column(
         modifier = Modifier.padding(paddingValues)
     ) {
@@ -179,9 +181,10 @@ fun CircularButton(
 }
 
 @Composable
-fun Content(recipe: Recipe) {
+fun Content(recipe: Recipe, scrollState: LazyListState) {
     LazyColumn(
-        contentPadding = PaddingValues(top = 400.dp)
+        contentPadding = PaddingValues(top = 400.dp),
+        state = scrollState
     ) {
         item {
             BasicInfo(recipe)
@@ -189,7 +192,88 @@ fun Content(recipe: Recipe) {
             ServingCalculator()
             IngredientsHeader()
             IngredientsList(recipe)
+            ShoppingListButton()
+            Reviews(recipe)
+            Images()
         }
+    }
+}
+
+@Composable
+fun Images() {
+    Row(
+        modifier = Modifier.padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Image(
+            painter = painterResource(R.drawable.strawberry_pie_2),
+            contentDescription = null,
+            modifier = Modifier
+                .weight(1f)
+                .clip(Shapes().small)
+        )
+        Spacer(modifier = Modifier.weight(0.1f))
+        Image(
+            painter = painterResource(R.drawable.strawberry_pie_3),
+            contentDescription = null,
+            modifier = Modifier
+                .weight(1f)
+                .clip(Shapes().small)
+        )
+    }
+}
+
+@Composable
+fun Reviews(recipe: Recipe) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            Text(text = "Reviews", fontWeight = FontWeight.Bold)
+            Text(recipe.reviews, color = DarkGray)
+        }
+        Button(
+            onClick = {},
+            elevation = null,
+            shape = Shapes().small,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Pink
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+            }
+            Text("See all")
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_right),
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Composable
+fun ShoppingListButton() {
+    Button(
+        onClick = {},
+        elevation = null,
+        shape = Shapes().small,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LightGray,
+            contentColor = Color.Black
+        ),
+        modifier = Modifier
+            .fillMaxWidth(
+            )
+            .padding(16.dp)
+    ) {
+        Text("Add to shopping list", modifier = Modifier.padding(8.dp))
     }
 }
 
@@ -354,7 +438,7 @@ fun InfoColumn(@DrawableRes iconResource: Int, text: String) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 380, heightDp = 900)
+@Preview(showBackground = true, widthDp = 380, heightDp = 1700)
 @Composable
 fun BodyPreview() {
     CookbookConceptAppTheme {
